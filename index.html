@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Black Writing App</title>
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: white;
+    font-family: monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+textarea {
+    flex: 1;
+    background: black;
+    color: white;
+    border: none;
+    outline: none;
+    padding: 20px;
+    font-size: 16px;
+    resize: none;
+}
+
+button {
+    background: #111;
+    color: white;
+    border: none;
+    padding: 15px;
+    font-size: 16px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<textarea id="text" placeholder="Start writing..."></textarea>
+<button onclick="saveText()">Save</button>
+
+<script>
+/* Register Service Worker */
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+}
+
+/* Save text */
+function saveText() {
+    const text = document.getElementById("text").value;
+    const blob = new Blob([text], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "notes.txt";
+    a.click();
+}
+</script>
+
+</body>
+</html>
