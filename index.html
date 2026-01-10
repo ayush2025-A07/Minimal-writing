@@ -3,63 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Black Writing App</title>
-
-<link rel="manifest" href="manifest.json">
+<title>Writing App</title>
 
 <style>
-body {
-    margin: 0;
-    background: black;
-    color: white;
-    font-family: monospace;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
+    body {
+        margin: 0;
+        background: #000;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
 
-textarea {
-    flex: 1;
-    background: black;
-    color: white;
-    border: none;
-    outline: none;
-    padding: 20px;
-    font-size: 16px;
-    resize: none;
-}
+    textarea {
+        flex: 1;
+        background: #000;
+        color: #fff;
+        border: none;
+        outline: none;
+        padding: 15px;
+        font-size: 16px;
+        resize: none;
+    }
 
-button {
-    background: #111;
-    color: white;
-    border: none;
-    padding: 15px;
-    font-size: 16px;
-    cursor: pointer;
-}
+    #toolbar {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        padding: 10px;
+        background: #111;
+        border-top: 1px solid #333;
+    }
+
+    button {
+        background: #222;
+        color: #fff;
+        border: 1px solid #444;
+        padding: 8px 16px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    button:hover {
+        background: #333;
+    }
 </style>
 </head>
 
 <body>
 
-<textarea id="text" placeholder="Start writing..."></textarea>
-<button onclick="saveText()">Save</button>
+<textarea id="editor" placeholder="Start writing..."></textarea>
+
+<div id="toolbar">
+    <button onclick="undo()">Undo</button>
+    <button onclick="redo()">Redo</button>
+    <button onclick="saveText()">Save</button>
+</div>
 
 <script>
-/* Register Service Worker */
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
-}
+    const editor = document.getElementById("editor");
+    let history = [""];
+    let redoStack = [];
 
-/* Save text */
-function saveText() {
-    const text = document.getElementById("text").value;
-    const blob = new Blob([text], { type: "text/plain" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "notes.txt";
-    a.click();
-}
+    editor.addEventListener("input", () => {
+        history.push(editor.value);
+        redoStack = [];
+    });
+
+    function undo() {
+        if (history.length > 1) {
+            redoStack.push(history.pop());
+            editor.value = history[history.length - 1];
+        }
+    }
+
+    function redo() {
+        if (redoStack.length > 0) {
+            const text = redoStack.pop();
+            history.push(text);
+            editor.value = text;
+        }
+    }
+
+    function saveText() {
+        const blob = new Blob([editor.value], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "writing.txt";
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
 </script>
 
 </body>
